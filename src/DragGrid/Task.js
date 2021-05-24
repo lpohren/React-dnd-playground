@@ -16,10 +16,24 @@ const Container = styled.div`
 `;
 
 const borderColor = (props) => {
-    if (props.task.type == props.activeType){
+    if (props.task.type === props.activeType){
         return '#37c22b'
     }
     return 'black'
+}
+
+// This is a bug fix, since the app does not support horizontal and vertical drag and drop, this code IS IMPORTANT and disables the cards reordering
+const getStyle = (style, snapshot) => {
+    if (!snapshot.isDragging) return {};
+    if (!snapshot.isDropAnimating) {
+      return style;
+    }
+  
+    return {
+      ...style,
+      // cannot be 0, but make it super tiny
+      transitionDuration: `0.001s`
+    };
 }
 
 const Task = (props) => {
@@ -35,11 +49,11 @@ const Task = (props) => {
         <Draggable draggableId={props.task.id} index={props.index}>
             {(provided, snapshot) => (
                 <Container
+                ref={provided.innerRef}
                 {...provided.draggableProps}
                 {...provided.dragHandleProps}
-                ref={provided.innerRef}
+                style={getStyle(provided.draggableProps.style, snapshot)}
                 isDragging={snapshot.isDragging}
-                isOver={snapshot.draggingOver}
                 task={props.task}
                 activeType={props.activeType}
                 onMouseEnter={() => onMouseEnterHandler(props.task.type)}
@@ -48,7 +62,6 @@ const Task = (props) => {
                     {props.task.content}
                 </Container>
             )}
-            
         </Draggable>
     )
 }
